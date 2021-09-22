@@ -1,0 +1,71 @@
+﻿@layout EmptyLayout
+@page "/"
+
+@{
+    if (!loggedIn)
+    {
+        <div class="ui text container">
+            <h1 class="ui inverted header">
+                <img src="images/logo.png" alt="logo" class="ui massive image" style="margin-bottom: 12px" />
+                Reactivities
+            </h1>
+            <h2 class="ui inverted header">Welcome to Reactivities</h2>
+            <button class="ui huge inverted button" @onclick="LoginDialogueOpen">Login</button>
+            <button class="ui huge inverted button">Register</button>
+            <LoginDialogue @ref="LoginDialogue" CloseEventCallback="@LoginDialogue_Onclose"></LoginDialogue>
+        </div>
+    }
+    else
+    {
+        <div class="ui text container">
+            <h1 class="ui inverted header">
+                <img src="images/logo.png" alt="logo" class="ui massive image" style="margin-bottom: 12px" />
+                Reactivities
+            </h1>
+            <h2 class="ui inverted header">Welcome back @DisplayName</h2>
+            <button class="ui huge inverted button" @onclick="GoToActivities">Go to activities</button>
+        </div>
+    }
+}
+
+@code{
+
+    [Inject]
+    public IAuthenticationService AuthenticationService { get; set; }
+    [Inject]
+    public NavigationManager NavigationManager { get; set; }
+
+
+
+    protected bool loggedIn;
+    protected string DisplayName;
+
+
+    protected LoginDialogue LoginDialogue { get; set; }
+
+
+    protected override void OnInitialized()
+    {
+        loggedIn = false;
+        if(AuthenticationService.User != null)
+        {
+            loggedIn = true;
+            DisplayName = AuthenticationService.User.DisplayName;
+        }
+        //base.OnInitialized();
+    }
+    protected void LoginDialogueOpen()
+    {
+        LoginDialogue.Show();
+    }
+
+    protected void LoginDialogue_Onclose()
+    {
+        StateHasChanged();
+    }
+
+    protected void GoToActivities()
+    {
+        NavigationManager.NavigateTo("activities");
+    }
+}

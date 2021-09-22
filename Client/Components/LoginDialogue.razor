@@ -1,0 +1,85 @@
+﻿@using System.ComponentModel.DataAnnotations
+@using Client.Interfaces
+@inject NavigationManager NavigationManager
+@inject IAuthenticationService AuthenticationService
+
+
+
+@{ 
+    if (ShowDialogue)
+    {
+        <div class="ui page modals dimmer transition visible active" style="display: flex !important">
+            <div class="ui mini modal transition visible active">
+                
+                <div class="content">
+                    <EditForm Model="@model" OnValidSubmit="@HandleValidSubmit" class="ui error form">
+                        <DataAnnotationsValidator />
+                        <h2 class="ui teal center aligned header">Login to Reactivities</h2>
+                        <div class="field"><InputText id="username" @bind-Value="model.Email" placeholder="Enter username" /></div>
+                        <ValidationMessage For="@(() => model.Email)" />
+                        <div class="field"><InputText id="password" @bind-Value="model.Password" placeholder="Enter password" type="password" /></div>
+                        <ValidationMessage For="@(() => model.Password)" />
+
+                        <button type="submit" class="ui teal fluid button @(loading ? "loading" : "")"tabindex="-1">Login</button><br />
+                        <button type="button" class="ui teal fluid button" @onclick="OverlayClick" tabindex="-1">Cancel</button>
+                        <div class="text-danger">@(!string.IsNullOrEmpty(error) ? error : "")</div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+
+    }
+}
+
+@code {
+
+    public bool ShowDialogue { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> CloseEventCallback { get; set; }
+
+    private Model model = new Model();
+    private bool loading;
+    private string error;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+    }
+
+    private async void HandleValidSubmit()
+    {
+        loading = true;
+        try
+        {
+            await AuthenticationService.Login(model.Email, model.Password);
+            NavigationManager.NavigateTo("activities");
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+            loading = false;
+            StateHasChanged();
+        }
+    }
+
+    public void Show()
+    {
+        ShowDialogue = true;
+        StateHasChanged();
+    }
+
+    private class Model
+    {
+        [Required]
+        public string Email { get; set; }
+
+        [Required]
+        public string Password { get; set; }
+    }
+    private void OverlayClick(MouseEventArgs args)
+    {
+        ShowDialogue = false;
+    }
+}

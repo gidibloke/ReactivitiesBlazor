@@ -1,0 +1,81 @@
+﻿@page "/activities"
+
+@{ 
+    if(ActivitiesList == null)
+    {
+        <em>Loading ....</em>
+    }
+    else
+    {
+        <div class="ui grid">
+            <div class="ten wide column">
+                @foreach (var activity in ActivitiesList)
+                {
+                    <div>
+                        <div class="ui blue large label">
+                            @activity.Date.ToString("dddd, dd MMMM yyyy")
+                        </div>
+                        <div class="ui divided item">
+                            <div class="ui segment">
+                                <div class="ui items">
+                                    <div class="item">
+                                        <div class="ui tiny circular image" style="margin-bottom: 3px;">
+                                            <img src="images/user.png">
+                                        </div>
+                                        <div class="content">
+                                            <a class="header" href="/activities/@activity.Id">@activity.Title</a>
+                                            <div class="description">
+                                                Hosted by<a href="/profile/fernando"> Fernando</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ui segment">
+                                <i aria-hidden="true" class="clock icon"></i> @activity.Date.ToLocalTime()
+                                <i aria-hidden="true" class="marker icon"></i> @activity.Venue, @activity.City
+                            </div>
+                            <div class="ui secondary segment">
+                                <div role="list" class="ui horizontal list">
+                                    <div role="listitem" class="item">
+                                        <img src="https://res.cloudinary.com/digua6bil/image/upload/v1572233452/qr1csmwazwe4fy89fmqn.jpg" class="ui mini bordered circular image" style="border-color: orange; border-width: 2px;">
+                                    </div>
+                                    <div role="listitem" class="item"><img src="images/user.png" class="ui mini bordered circular image"></div>
+                                </div>
+                            </div>
+                            <div class="ui clearing segment">
+                                <span>@activity.Description</span>
+                                <a class="ui blue right floated button" role="button" href="/activities/@activity.Id">View</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+            </div>
+            <div class="six wide column">
+                <div class="ui large vertical menu" style="width: 100%; margin-top: 50px;">
+                    <div class="ui teal attached header">
+                        <i aria-hidden="true" class="filter icon"></i>
+                        <div class="content">Filters</div>
+                    </div>
+                    <a class="blue active item">All Activities</a>
+                    <a class="blue item">I'm Going</a>
+                    <a class="blue item">I'm hosting</a>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+
+@code {
+    protected List<Activity> ActivitiesList;
+    [Inject]
+    public IHttpService HttpService { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        ActivitiesList = await HttpService.Get<List<Activity>>("api/activities");
+    }
+
+}
